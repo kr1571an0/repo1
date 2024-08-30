@@ -1,6 +1,20 @@
-library(mixOmics)
 
-data(nutrimouse)
+library(MultiAssayExperiment)
+library(S4Vectors)
+library(UpSetR)
+library(ggplot2)
+library(ggplotify)
 
-View(nutrimouse)
+
+
+data(miniACC)
+str(miniACC)
+
+experiments(miniACC)
+sampleMap(miniACC)
+
+
+a <- upsetSamples(miniACC)
+a
+ggsave('/workspaces/repo1/plots/file.pdf', ggplotify::as.ggplot(a))
 
