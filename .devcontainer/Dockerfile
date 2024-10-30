@@ -1,22 +1,20 @@
-# Pre-built Dev Container Image for R. More info: https://github.com/rocker-org/devcontainer-images/pkgs/container/devcontainer%2Ftidyverse
-# Available R version: 4, 4.1, 4.0
-ARG VARIANT="4"
-FROM ghcr.io/rocker-org/devcontainer/tidyverse:${VARIANT}
+# Use an appropriate base image
+FROM ubuntu:20.04
 
-RUN install2.r --error --skipinstalled -n -1 \
-        patchwork \
-        paletteer \
-        here \
-        janitor \
-        palmerpenguins \
-        markdown \
-        httpgd \ 
-        languageserver \
-        lintr \
-        bench \
-    && rm -rf /tmp/downloaded_packages \
-    && R -q -e 'remotes::install_github("https://github.com/dcomtois/summarytools/tree/0-8-9")'
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libxml2-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python packages
-COPY requirements.txt /tmp/pip-tmp/
-RUN python3 -m pip --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt
+# Install R 4.4 from source
+RUN wget https://cran.r-project.org/src/base/R-4/R-4.4.0.tar.gz \
+    && tar -xzf R-4.4.0.tar.gz \
+    && cd R-4.4.0 \
+    && ./configure \
+    && make \
+    && make install \
+    && cd .. \
+    && rm -rf R-4.4.0 R-4.4.0.tar.gz
